@@ -1,6 +1,4 @@
-#include <iostream>
-#include <sstream>
-#include "file.hpp"
+#include "file.h"
 
 using namespace std;
 
@@ -13,15 +11,17 @@ void rmdir(string[]);
 void touch(string[]);
 void rm(string[]);
 void chmod(string[]);
-void exit(string[]);
-void yikes();
+void yikes(string[]);
+void exit();
 
-Folder root("/");
+Folder* root = new Folder("/");
+Folder* location = root;
 
 int main() {
   bool exitTime = false;
   while (!exitTime) {
     string command;
+    cout << "clay@freyja:~$ ";
     getline(cin, command);
     exitTime = parseCommand(command);
   }
@@ -46,45 +46,59 @@ bool parseCommand(string command) {
   else if (params[0] == "rm") { rm(params); }
   else if (params[0] == "chmod") { chmod(params); }
   else if (params[0] == "exit" || params[0] == "quit") {
-    exit(params);
+    exit();
     ret = true;
   }
-  else { yikes(); }
+  else { yikes(params); }
   return ret;
 }
 
-void ls(string command[]) {
-  root.list();
+void ls(string params[4]) {
+  if (params[1] != "") {
+    location->longList();
+  } else {
+    location->list();
+  }
 }
 
-void pwd(string[]) {
-  cout << "You ls'd" << endl;
+void pwd(string params[4]) {
+  cout << location->getPathTo() << endl;
 }
-void cd(string[]) {
-  cout << "You cd'd" << endl;
+
+void cd(string params[4]) {
+  location = location->goTo(params[1]);
 }
+
 void mkdir(string params[4]) {
-  Folder newDir(params[1]);
-  root.addFile(newDir);
-}
-void rmdir(string[]) {
-  cout << "You rmdir'd" << endl;
-}
-void touch(string params[4]) { 
-  File newFile(params[1]);
-  root.addFile(newFile);
-}
-void rm(string[]) {
-  cout << "You rm'd" << endl;
-}
-void chmod(string[]) {
-  cout << "You chmod'd" << endl;
-}
-void exit(string[]) {
-  cout << "You exit'd" << endl;
+  Folder* newDir = new Folder(params[1]);
+  location->addFolder(newDir);
 }
 
-void yikes() {
-  // TODO make real message
-  cout << "Command not found" << endl;
+void rmdir(string params[4]) {
+  if (!location->removeFolder(params[1])) {
+    cout << "rmdir: " << params[1] << ": No such file or directory" << endl;
+  }
+}
+
+void touch(string params[4]) { 
+  File* newFile = new File(params[1]);
+  location->addFile(newFile);
+}
+
+void rm(string params[4]) {
+  if (!location->removeFile(params[1])) {
+    cout << "rm: " << params[1] << ": No such file or directory" << endl;
+  }
+}
+
+void chmod(string params[4]) {
+  location->setPerms(params[1], params[2]);
+}
+
+void yikes(string params[4]) {
+  cout << "bash: " << params[1] << ": command not found" << endl;
+}
+
+void exit() {
+  cout << "exit" << endl;
 }
