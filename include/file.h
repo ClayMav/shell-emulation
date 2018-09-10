@@ -1,53 +1,58 @@
 #ifndef FILE_H
 #define FILE_H
 
-#include <iostream>
-#include <vector>
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
+#include <ctype.h>
+#include <iostream>
 #include <map>
 #include <sstream>
-#include <ctime>
-#include <cstdlib>
+#include <vector>
 using namespace std;
 
 class File {
-  protected:
-    string m_modified[3];
-    string m_ownerperm, m_groupperm, m_publicperm, m_owner, m_name;
-    int m_size;
-  public:
-    File(string name);
-    ~File();
-    string getName();
-    string getMonth();
-    string getDay();
-    string getTime();
-    string getPerms();
-    string getOwner();
-    int getSize();
-    void setSize();
-    void updateTime();
-    void changePerms(string numStr);
-    void changeOwner(string owner);
+protected:
+  // m_modified is an array of three strings. month in Mmm format, day of the
+  // month, and time, formatted as hh:mm
+  string m_modified[3];
+  string m_ownerperm, m_groupperm, m_publicperm, m_owner, m_name;
+  int m_size;
+
+public:
+  File(const string &name);
+  ~File();
+  string getName() const;
+  string getMonth() const;
+  string getDay() const;
+  string getTime() const;
+  string getPerms() const;
+  string getOwner() const;
+  int getSize() const;
+  void setSize();
+  void updateTime();
+  void changePerms(const string &numStr);
+  void changeOwner(const string &owner);
 };
 
-class Folder: public File {
-  protected:
-    vector<File*> files;
-    vector<Folder*> folders;
-    Folder* last;
-  public:
-    Folder(string name);
-    ~Folder();
-    bool addFile(File* newFile);
-    bool addFolder(Folder* newFolder);
-    bool removeFile(string target);
-    bool removeFolder(string target);
-    void list();
-    void longList();
-    Folder* goTo(string folderName);
-    string getPathTo();
-    void setPerms(string numStr, string target);
+class Folder : public File {
+protected:
+  vector<File *> files;
+  vector<Folder *> folders;
+  Folder *last;
+
+public:
+  Folder(const string &name);
+  ~Folder();
+  void list() const;
+  void longList() const;
+  string getPathTo() const;
+  bool addFile(File *newFile);
+  bool addFolder(Folder *newFolder);
+  bool removeFile(const string &target);
+  bool removeFolder(const string &target);
+  Folder *goTo(const string &folderName);
+  void setPerms(const string &numStr, const string &target);
 };
 
 #endif

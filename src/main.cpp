@@ -2,20 +2,22 @@
 
 using namespace std;
 
-bool parseCommand(string);
-void ls(string[]);
-void pwd(string[]);
-void cd(string[]);
-void mkdir(string[]);
-void rmdir(string[]);
-void touch(string[]);
-void rm(string[]);
-void chmod(string[]);
-void yikes(string[]);
+bool parseCommand(const string &);
+void ls(const string[]);
+void pwd(const string[]);
+void cd(const string[]);
+void mkdir(const string[]);
+void rmdir(const string[]);
+void touch(const string[]);
+void rm(const string[]);
+void chmod(const string[]);
+void yikes(const string[]);
 void exit();
 
-Folder* root = new Folder("/");
-Folder* location = root;
+// The root folder, and location is the current directory, will be updated with
+// cd
+Folder *root = new Folder("/");
+Folder *location = root;
 
 int main() {
   bool exitTime = false;
@@ -28,7 +30,8 @@ int main() {
   exit(0);
 }
 
-bool parseCommand(string command) {
+bool parseCommand(const string &command) {
+  // Will split the command string into a list of space seperated values
   string params[4];
   short i = 0;
   stringstream ssin(command);
@@ -37,68 +40,73 @@ bool parseCommand(string command) {
     i++;
   }
   bool ret = false;
-  if (params[0] == "ls") { ls(params); }
-  else if (params[0] == "pwd") { pwd(params); }
-  else if (params[0] == "cd") { cd(params); }
-  else if (params[0] == "mkdir") { mkdir(params); }
-  else if (params[0] == "rmdir") { rmdir(params); }
-  else if (params[0] == "touch") { touch(params); }
-  else if (params[0] == "rm") { rm(params); }
-  else if (params[0] == "chmod") { chmod(params); }
-  else if (params[0] == "exit" || params[0] == "quit") {
+  // Matches commands to their functions
+  if (params[0] == "ls") {
+    ls(params);
+  } else if (params[0] == "pwd") {
+    pwd(params);
+  } else if (params[0] == "cd") {
+    cd(params);
+  } else if (params[0] == "mkdir") {
+    mkdir(params);
+  } else if (params[0] == "rmdir") {
+    rmdir(params);
+  } else if (params[0] == "touch") {
+    touch(params);
+  } else if (params[0] == "rm") {
+    rm(params);
+  } else if (params[0] == "chmod") {
+    chmod(params);
+  } else if (params[0] == "exit" || params[0] == "quit") {
     exit();
     ret = true;
+  } else {
+    // Not a command
+    yikes(params);
   }
-  else { yikes(params); }
   return ret;
 }
 
-void ls(string params[4]) {
-  if (params[1] != "") {
+void ls(const string params[4]) {
+  if (params[1] == "-l") {
     location->longList();
   } else {
     location->list();
   }
 }
 
-void pwd(string params[4]) {
-  cout << location->getPathTo() << endl;
-}
+void pwd(const string params[4]) { cout << location->getPathTo() << endl; }
 
-void cd(string params[4]) {
-  location = location->goTo(params[1]);
-}
+void cd(const string params[4]) { location = location->goTo(params[1]); }
 
-void mkdir(string params[4]) {
-  Folder* newDir = new Folder(params[1]);
+void mkdir(const string params[4]) {
+  Folder *newDir = new Folder(params[1]);
   location->addFolder(newDir);
 }
 
-void rmdir(string params[4]) {
+void rmdir(const string params[4]) {
   if (!location->removeFolder(params[1])) {
+    // If folder is not removed it returns false
     cout << "rmdir: " << params[1] << ": No such file or directory" << endl;
   }
 }
 
-void touch(string params[4]) { 
-  File* newFile = new File(params[1]);
+void touch(const string params[4]) {
+  File *newFile = new File(params[1]);
   location->addFile(newFile);
 }
 
-void rm(string params[4]) {
+void rm(const string params[4]) {
   if (!location->removeFile(params[1])) {
+    // If file is not removed it returns false
     cout << "rm: " << params[1] << ": No such file or directory" << endl;
   }
 }
 
-void chmod(string params[4]) {
-  location->setPerms(params[1], params[2]);
-}
+void chmod(const string params[4]) { location->setPerms(params[1], params[2]); }
 
-void yikes(string params[4]) {
+void yikes(const string params[4]) {
   cout << "bash: " << params[1] << ": command not found" << endl;
 }
 
-void exit() {
-  cout << "exit" << endl;
-}
+void exit() { cout << "exit" << endl; }
