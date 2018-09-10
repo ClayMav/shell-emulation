@@ -25,7 +25,9 @@ int main() {
     string command;
     cout << "clay@freyja:~$ ";
     getline(cin, command);
-    exitTime = parseCommand(command);
+    if (command.length()) {
+      exitTime = parseCommand(command);
+    }
   }
   exit(0);
 }
@@ -70,8 +72,10 @@ bool parseCommand(const string &command) {
 void ls(const string params[4]) {
   if (params[1] == "-l") {
     location->longList();
-  } else {
+  } else if (params[1] == "") {
     location->list();
+  } else {
+    cout << "ls: illegal option -- " << params[1] << endl;
   }
 }
 

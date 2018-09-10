@@ -70,6 +70,12 @@ bool Folder::removeFile(const string &target) {
       return true;
     }
   }
+  for (int i = 0; i < folders.size(); i++) {
+    if (folders[i]->getName() == target) {
+      cout << "rm: " << target << ": is a directory" << endl;
+      return true;
+    }
+  }
 
   return false;
 }
