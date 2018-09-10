@@ -3,7 +3,6 @@
 ### Clone this repository
 ```
 git clone https://github.com/ClayMav/shell-emulation.git
-
 ```
 ### Additional installation instructions
 To run this on your computer:
