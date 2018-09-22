@@ -1,7 +1,7 @@
 #include "file.h"
 
 // Since derived from File, must create File object
-Folder::Folder(const string &name) : File(name), last(NULL) {}
+Folder::Folder(const string &name) : File(name), last(this) {}
 
 Folder::~Folder() {
   if (files.size() != 0) {
@@ -83,6 +83,12 @@ bool Folder::removeFile(const string &target) {
 bool Folder::removeFolder(const string &target) {
   for (int i = 0; i < folders.size(); i++) {
     if (folders[i]->getName() == target) {
+      /* A recursive solution to deleting directories is not yet implemented
+       * so I am going to allow rmdir to recursively delete
+       * if (!folders[i]->folders.empty()) {
+        cout << "rmdir: " << target << ": Directory not empty" << endl;
+        return false;
+      }*/
       delete folders[i];
       folders.erase(folders.begin() + i);
       return true;
@@ -91,10 +97,10 @@ bool Folder::removeFolder(const string &target) {
   for (int i = 0; i < files.size(); i++) {
     if (files[i]->getName() == target) {
       cout << "rmdir: " << target << ": Not a directory" << endl;
-      return true;
+      return false;
     }
   }
-  cout << "rmdir: " << target << ": Directory not empty" << endl;
+  cout << "rmdir: " << target << ": No such file or directory" << endl;
   return false;
 }
 

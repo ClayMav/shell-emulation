@@ -29,6 +29,7 @@ int main() {
       exitTime = parseCommand(command);
     }
   }
+  delete root;
   exit(0);
 }
 
@@ -88,12 +89,7 @@ void mkdir(const string params[4]) {
   location->addFolder(newDir);
 }
 
-void rmdir(const string params[4]) {
-  if (!location->removeFolder(params[1])) {
-    // If folder is not removed it returns false
-    cout << "rmdir: " << params[1] << ": No such file or directory" << endl;
-  }
-}
+void rmdir(const string params[4]) { location->removeFolder(params[1]); }
 
 void touch(const string params[4]) {
   File *newFile = new File(params[1]);
