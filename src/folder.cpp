@@ -153,7 +153,9 @@ void Folder::longList() const {
 
 Folder *Folder::goTo(const string &folderName) {
   // Passes back
-  if (folderName == ".." || folderName == "../") {
+  if (folderName == "." || folderName == "./") {
+    return this;
+  } else if (folderName == ".." || folderName == "../") {
     return this->last;
   }
   for (int i = 0; i < folders.size(); i++) {
@@ -170,10 +172,10 @@ string Folder::getPathTo() const {
   // Basically pwd
   string out = this->getName();
   Folder *onwards = this->last;
-  if (this->last == NULL) {
+  if (this->last == this) {
     return out;
   }
-  while (onwards->last != NULL) {
+  while (onwards->last != onwards) {
     out = onwards->getName() + "/" + out;
     onwards = onwards->last;
   }

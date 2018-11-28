@@ -1,4 +1,5 @@
 #include "file.h"
+#include "memory.h"
 
 using namespace std;
 
@@ -11,6 +12,13 @@ void rmdir(const string[]);
 void touch(const string[]);
 void rm(const string[]);
 void chmod(const string[]);
+void memreset(const string[]);
+void memalg(const string[]);
+void memset(const string[]);
+void memload(const string[]);
+void memstep(const string[]);
+void memview(const string[]);
+void memrun(const string[]);
 void yikes(const string[]);
 void exit();
 
@@ -18,6 +26,8 @@ void exit();
 // cd
 Folder *root = new Folder("/");
 Folder *location = root;
+
+Memory mem;
 
 int main() {
   bool exitTime = false;
@@ -60,6 +70,20 @@ bool parseCommand(const string &command) {
     rm(params);
   } else if (params[0] == "chmod") {
     chmod(params);
+  } else if (params[0] == "memreset") {
+    memreset(params);
+  } else if (params[0] == "memalg") {
+    memalg(params);
+  } else if (params[0] == "memset") {
+    memset(params);
+  } else if (params[0] == "memload") {
+    memload(params);
+  } else if (params[0] == "memstep") {
+    memstep(params);
+  } else if (params[0] == "memview") {
+    memview(params);
+  } else if (params[0] == "memrun") {
+    memrun(params);
   } else if (params[0] == "exit" || params[0] == "quit") {
     exit();
     ret = true;
@@ -104,6 +128,28 @@ void rm(const string params[4]) {
 }
 
 void chmod(const string params[4]) { location->setPerms(params[1], params[2]); }
+
+void memreset(const string params[4]) { mem.reset(); }
+void memalg(const string params[4]) { mem.setAlg(params[1]); }
+void memset(const string params[4]) {
+  long size = atol(params[1].c_str());
+  mem.setSize(size);
+}
+void memload(const string params[4]) { mem.load(params[1]); }
+void memstep(const string params[4]) {
+  if (params[1] == "all") {
+    mem.step(params[1]);
+    return;
+  } else if (params[1] == "") {
+    mem.step();
+    return;
+  }
+  long stepSize = atol(params[1].c_str());
+  mem.step(stepSize);
+  return;
+}
+void memview(const string params[4]) { mem.print(); }
+void memrun(const string params[4]) { mem.run(params[1]); }
 
 void yikes(const string params[4]) {
   cout << "bash: " << params[1] << ": command not found" << endl;
