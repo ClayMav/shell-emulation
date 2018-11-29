@@ -150,7 +150,7 @@ public:
     }
     this->m_pos++;
 
-    long pos;
+    long pos = -1;
     if (this->m_alg == "first") {
       pos = this->getFirst(item->m_size);
       item->m_pos = pos;
@@ -185,6 +185,8 @@ public:
         this->m_mem->at(pos + i) = true;
       }
     }
+    if (pos != -1)
+      this->m_last = pos;
   }
 
   void step(const string &word) {
