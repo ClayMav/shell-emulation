@@ -28,7 +28,6 @@ protected:
   string m_alg = "NULL";
   long m_size = -1;
   long m_last = 0;
-  long m_pos = 0;
   long m_time = -1;
 
 public:
@@ -54,7 +53,6 @@ public:
     this->m_alg = "NULL";
     this->m_size = -1;
     this->m_last = 0;
-    this->m_pos = 0;
     this->m_time = -1;
     this->m_mem = NULL;
     this->m_actions = NULL;
@@ -94,6 +92,7 @@ public:
       return;
     }
     cout << this->m_alg << " " << this->m_size << endl;
+    cout << this->m_time << endl;
     for (long i = 0; i < this->m_mem->size(); i++) {
       if (this->m_mem->at(i))
         cout << "\033[31m"
@@ -120,6 +119,7 @@ public:
   }
 
   void step() {
+    this->m_time++;
     for (long i = 0; i < this->m_actions->size(); i++) {
       // For each Entry
       Entry *temp = this->m_actions->at(i);
@@ -139,54 +139,50 @@ public:
       }
     }
 
-    this->m_time++;
+    for (long f = 0; f < this->m_actions->size(); f++) {
+      Entry *item = this->m_actions->at(f);
+      if (item->m_start != this->m_time) {
+        continue;
+      }
 
-    if (this->m_pos == this->m_actions->size()) {
-      return;
+      long pos = -1;
+      if (this->m_alg == "first") {
+        pos = this->getFirst(item->m_size);
+        item->m_pos = pos;
+        if (pos == -1) {
+          cout << "Command starting at time unit " << item->m_start
+               << " cannot be done" << endl;
+          continue;
+        }
+        for (long i = 0; i < item->m_size; i++) {
+          this->m_mem->at(pos + i) = true;
+        }
+      } else if (this->m_alg == "next") {
+        pos = this->getNext(item->m_size);
+        item->m_pos = pos;
+        if (pos == -1) {
+          cout << "Command starting at time unit " << item->m_start
+               << " cannot be done" << endl;
+          continue;
+        }
+        for (long i = 0; i < item->m_size; i++) {
+          this->m_mem->at(pos + i) = true;
+        }
+      } else if (this->m_alg == "best") {
+        pos = this->getBest(item->m_size);
+        item->m_pos = pos;
+        if (pos == -1) {
+          cout << "Command starting at time unit " << item->m_start
+               << " cannot be done" << endl;
+          continue;
+        }
+        for (long i = 0; i < item->m_size; i++) {
+          this->m_mem->at(pos + i) = true;
+        }
+      }
+      if (pos != -1)
+        this->m_last = pos + item->m_size - 1;
     }
-    Entry *item = this->m_actions->at(this->m_pos);
-    if (item->m_start != this->m_time) {
-      return;
-    }
-    this->m_pos++;
-
-    long pos = -1;
-    if (this->m_alg == "first") {
-      pos = this->getFirst(item->m_size);
-      item->m_pos = pos;
-      if (pos == -1) {
-        cout << "Command starting at time unit " << item->m_start
-             << " cannot be done" << endl;
-        return;
-      }
-      for (long i = 0; i < item->m_size; i++) {
-        this->m_mem->at(pos + i) = true;
-      }
-    } else if (this->m_alg == "next") {
-      pos = this->getNext(item->m_size);
-      item->m_pos = pos;
-      if (pos == -1) {
-        cout << "Command starting at time unit " << item->m_start
-             << " cannot be done" << endl;
-        return;
-      }
-      for (long i = 0; i < item->m_size; i++) {
-        this->m_mem->at(pos + i) = true;
-      }
-    } else if (this->m_alg == "best") {
-      pos = this->getBest(item->m_size);
-      item->m_pos = pos;
-      if (pos == -1) {
-        cout << "Command starting at time unit " << item->m_start
-             << " cannot be done" << endl;
-        return;
-      }
-      for (long i = 0; i < item->m_size; i++) {
-        this->m_mem->at(pos + i) = true;
-      }
-    }
-    if (pos != -1)
-      this->m_last = pos + item->m_size - 1;
   }
 
   void step(const string &word) {
@@ -196,20 +192,20 @@ public:
     }
     if (word == "all") {
       long max = 0;
-      const long num = this->m_actions->size();
-      for (long i = this->m_pos; i < num; i++) {
-        long val = this->m_actions->at(i)->m_start +
-                   this->m_actions->at(i)->m_duration;
+      long val;
+      for (long i = 0; i < this->m_actions->size(); i++) {
+        val = this->m_actions->at(i)->m_start +
+              this->m_actions->at(i)->m_duration;
         if (val > max) {
           max = val + 1;
         }
       }
-      for (long i = this->m_pos; i < max; i++) {
+      for (long i = this->m_time; i < max; i++) {
         this->step();
       }
       cout << "Completed in " << max << " time units" << endl;
     } else {
-      cout << "Not and option" << endl;
+      cout << "Not an option" << endl;
     }
   }
 
