@@ -33,34 +33,45 @@ protected:
 
 public:
   Memory() {}
-  ~Memory() {
-    delete this->m_mem;
-    long size = this->m_actions->size();
-    for (long i = 0; i < size; i++)
-      delete this->m_actions->at(i);
-    delete this->m_actions;
+  ~Memory() { this->clear(); }
+  void clear() {
+    if (this->m_mem != NULL)
+      delete this->m_mem;
+    if (this->m_actions != NULL) {
+      const long size = this->m_actions->size();
+      for (long i = 0; i < size; i++) {
+        delete this->m_actions->at(i);
+      }
+      this->m_actions->clear();
+      delete this->m_actions;
+    }
   }
   void setSize(const long &size) { this->m_size = size; }
   void setAlg(const string &alg) { this->m_alg = alg; }
   void reset() {
-    this->m_size = -1;
+    this->clear();
+
     this->m_alg = "NULL";
+    this->m_size = -1;
     this->m_last = 0;
     this->m_pos = 0;
-    delete this->m_mem;
+    this->m_time = -1;
     this->m_mem = NULL;
-    delete this->m_actions;
     this->m_actions = NULL;
   }
   void load(const string &filename) { this->load(filename, 0); }
   void load(const string &filename, const long &skip) {
     if (this->m_size == -1 || this->m_alg == "NULL") {
-      cout << "TODO: cant load" << endl;
+      cout << "error: cant load" << endl;
       return;
     }
     ifstream file;
     string line;
     file.open(filename);
+    if (file.fail()) {
+      cout << "error: cant load" << endl;
+      return;
+    }
     this->m_actions = new vector<Entry *>();
     if (skip) {
       for (long i = 0; i < skip; i++)
@@ -96,6 +107,7 @@ public:
 
   void run(const string &filename) {
     this->reset();
+
     ifstream file;
     string line;
     file.open(filename);
@@ -143,7 +155,8 @@ public:
       pos = this->getFirst(item->m_size);
       item->m_pos = pos;
       if (pos == -1) {
-        cout << "Cannot do this" << endl;
+        cout << "Command starting at time unit " << item->m_start
+             << " cannot be done" << endl;
         return;
       }
       for (long i = 0; i < item->m_size; i++) {
@@ -153,7 +166,8 @@ public:
       pos = this->getNext(item->m_size);
       item->m_pos = pos;
       if (pos == -1) {
-        cout << "Cannot do this" << endl;
+        cout << "Command starting at time unit " << item->m_start
+             << " cannot be done" << endl;
         return;
       }
       for (long i = 0; i < item->m_size; i++) {
@@ -163,7 +177,8 @@ public:
       pos = this->getBest(item->m_size);
       item->m_pos = pos;
       if (pos == -1) {
-        cout << "Cannot do this" << endl;
+        cout << "Command starting at time unit " << item->m_start
+             << " cannot be done" << endl;
         return;
       }
       for (long i = 0; i < item->m_size; i++) {
@@ -173,11 +188,26 @@ public:
   }
 
   void step(const string &word) {
+    if (this->m_time == -1) {
+      cout << "Please load first" << endl;
+      return;
+    }
     if (word == "all") {
+      long max = 0;
       const long num = this->m_actions->size();
       for (long i = this->m_pos; i < num; i++) {
+        long val = this->m_actions->at(i)->m_start +
+                   this->m_actions->at(i)->m_duration;
+        if (val > max) {
+          max = val + 1;
+        }
+      }
+      for (long i = this->m_pos; i < max; i++) {
         this->step();
       }
+      cout << "Completed in " << max << " time units" << endl;
+    } else {
+      cout << "Not and option" << endl;
     }
   }
 

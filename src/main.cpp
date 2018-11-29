@@ -130,9 +130,19 @@ void rm(const string params[4]) {
 void chmod(const string params[4]) { location->setPerms(params[1], params[2]); }
 
 void memreset(const string params[4]) { mem.reset(); }
-void memalg(const string params[4]) { mem.setAlg(params[1]); }
+void memalg(const string params[4]) {
+  if (params[1] == "first" || params[1] == "next" || params[1] == "best") {
+    mem.setAlg(params[1]);
+  } else {
+    cout << "Choose first, next, or best" << endl;
+  }
+}
 void memset(const string params[4]) {
   long size = atol(params[1].c_str());
+  if (size < 1) {
+    cout << "Please enter a valid size (>0)" << endl;
+    return;
+  }
   mem.setSize(size);
 }
 void memload(const string params[4]) { mem.load(params[1]); }
@@ -152,7 +162,7 @@ void memview(const string params[4]) { mem.print(); }
 void memrun(const string params[4]) { mem.run(params[1]); }
 
 void yikes(const string params[4]) {
-  cout << "bash: " << params[1] << ": command not found" << endl;
+  cout << "bash: " << params[0] << ": command not found" << endl;
 }
 
 void exit() { cout << "exit" << endl; }
