@@ -186,7 +186,7 @@ public:
       }
     }
     if (pos != -1)
-      this->m_last = pos;
+      this->m_last = pos + item->m_size - 1;
   }
 
   void step(const string &word) {
